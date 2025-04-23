@@ -5,6 +5,10 @@ import { errorHandler, successHandler } from "../utills/responseHandle.js";
 
 export const addTodoController = async (req, res) => {
 
+    console.log(req.loginUserId, "----> creator id");
+
+    if (!req.loginUserId) return errorHandler(res, 404, `you have to login first`)
+
     console.log(req.body);
     const { todoName, todoMassage } = req.body;
 
@@ -13,7 +17,8 @@ export const addTodoController = async (req, res) => {
     try {
         await todos.create({
             todoName,
-            todoMassage
+            todoMassage,
+            creatorId: req.loginUserId
         })
         successHandler(res, 200, `todo is created successfully`)
     }
@@ -27,6 +32,7 @@ export const addTodoController = async (req, res) => {
 
 export const updateTodoMassageController = async (req, res) => {
 
+    const loginUserId = req.loginUserId;
     console.log(req.body);
     const { todoName } = req.params;
     const { todoMassage } = req.body;
@@ -35,10 +41,13 @@ export const updateTodoMassageController = async (req, res) => {
 
     try {
 
-        const updateTodo = await todos.findOneAndUpdate({ todoName: todoName }, { todoMassage: todoMassage }, { new: true });
+        // const updateTodo = await todos.findOneAndUpdate({ todoName: todoName }, { todoMassage: todoMassage }, { new: true });
+        const updateTodo = await todos.findOneAndUpdate({ todoName: todoName }, { todoMassage: todoMassage });
         if (!updateTodo) return errorHandler(res, 404, `No Todo Found`)
 
-        successHandler(res, 200, `todo is updated successfully`,updateTodo)
+        if (loginUserId !== updateTodo.creatorId) return errorHandler(res, 404, `you cannot update any others todo`)
+
+        successHandler(res, 200, `todo is updated successfully`, updateTodo)
     }
     catch (error) {
         console.log(error, "--> todos updation me error he");
@@ -51,23 +60,28 @@ export const updateTodoMassageController = async (req, res) => {
 export const replaceTodoController = async (req, res) => {
 
     console.log(req.body);
+
+    const loginUserId = req.loginUserId;
     const { todoName } = req.params;
+
     console.log(todoName);
-    
 
     if (!todoName || !req.body) return errorHandler(res, 404, `missing fields`)
 
     try {
 
+        const replaceHoneWalaTodo = await todos.findOne({ todoName: todoName });
+        if (loginUserId !== replaceHoneWalaTodo.creatorId) return errorHandler(res, 404, `you cannot relplace any others todo`)
+
         const replaceTodo = await todos.findOneAndReplace(
             { todoName: todoName },
-            { ...req.body }
+            { ...req.body , creatorId: replaceHoneWalaTodo.creatorId }
         )
         console.log(replaceTodo);
-        
+
         if (!replaceTodo) return errorHandler(res, 404, `No Todo Found`)
 
-        successHandler(res, 200, `todo is replaced successfully`,replaceTodo)
+        successHandler(res, 200, `todo is replaced successfully`, replaceTodo)
     }
     catch (error) {
         console.log(error, "--> todos replaced me error he");
@@ -97,10 +111,10 @@ export const getTodosController = async (req, res) => {
 
 export const getTodoController = async (req, res) => {
 
-    console.log(req.params,"---> params");
+    console.log(req.params, "---> params");
     const getTodo = await todos.findOne({ todoName: req.params.todoName });
-    console.log(getTodo,"---> get todo");
-    
+    console.log(getTodo, "---> get todo");
+
 
     if (!getTodo) return errorHandler(res, 404, `no todo found`)
 
@@ -117,8 +131,14 @@ export const getTodoController = async (req, res) => {
 
 export const deleteTodoController = async (req, res) => {
 
+    const loginUserId = req.loginUserId;
     console.log(req.params);
-    const deleteTodo = await todos.findOneAndDelete({ todoName: req.params.todoName });
+    const {todoName} = req.params
+
+    const deleteHoneWalaTodo = await todos.findOne({ todoName: todoName });
+    if (loginUserId !== deleteHoneWalaTodo.creatorId) return errorHandler(res, 404, `you cannot delete any others todo`)
+
+    const deleteTodo = await todos.findOneAndDelete({ todoName:todoName });
 
     if (!deleteTodo) return errorHandler(res, 404, `no todo found`)
 

@@ -10,6 +10,9 @@ const todoschema = new mongoose.Schema({
     type: String,
     lowercase: true,
   },
+  creatorId : {
+    type : String
+  },
   isAdmin: {
     type: Boolean,
     default: false,

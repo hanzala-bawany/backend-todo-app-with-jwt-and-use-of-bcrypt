@@ -2,6 +2,8 @@ import bcrypt from "bcryptjs";
 import pkg from "jsonwebtoken"
 import { users } from "../models/usersModel.js"
 import { errorHandler, successHandler } from "../utills/responseHandle.js";
+// import { loginUsers } from "../models/perDayLoginModel.js"
+// import { CronJob } from 'cron';
 
 const { sign } = pkg
 const { hash, compare } = bcrypt
@@ -74,7 +76,31 @@ export const loginController = async (req, res) => {
             userPass: isExist.password
         }, process.env.JWT_secretKey, { expiresIn: "5m" })
 
-        return successHandler(res, 200, `user login succefully`, { loginUser: isExist, token: tokenGenerate })``
+        //             CRON JOB CODING START
+        // let loginUsersArray = [];
+        // loginUsersArray.push([isExist._id, new Date().getHours()])
+
+        // const job = new CronJob(
+        //     '*/59 * * * * *', // cronTime
+        //     function () {
+        //         console.log('cron job her 60 second me chal raha he');
+
+        //         loginUsers.create({
+        //             perHourLoginCount: loginUsersArray.length,
+        //             startDate: loginUsersArray[0][1],
+        //             endDate: loginUsersArray[loginUsersArray.length - 1][1]
+        //         })
+
+        //         loginUsersArray = []
+
+        //     }, // onTick
+        //     null, // onComplete
+        //     true, // start
+        //     'America/Los_Angeles' // timeZone
+        // )
+        //                CRON JOB CODING END
+
+        return successHandler(res, 200, `user login succefully`, { loginUser: isExist, token: tokenGenerate })
     }
     catch (error) {
         console.log(error, "---> login me error he");

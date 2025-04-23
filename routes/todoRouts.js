@@ -5,11 +5,11 @@ import { addTodoController,getTodosController,getTodoController,deleteTodoContro
 const todoRoutes = express.Router()
 
 todoRoutes.post('/addTodo',checkToken,addTodoController);
-todoRoutes.patch('/updateTodoMassage/:todoName', updateTodoMassageController);
-todoRoutes.put('/replaceTodo/:todoName', replaceTodoController);
+todoRoutes.patch('/updateTodoMassage/:todoName',checkToken ,updateTodoMassageController);
+todoRoutes.put('/replaceTodo/:todoName', checkToken ,replaceTodoController);
 todoRoutes.get('/getTodos', getTodosController);
 todoRoutes.get('/getTodo/:todoName', getTodoController);
-todoRoutes.delete('/deleteTodo/:todoName', deleteTodoController);
+todoRoutes.delete('/deleteTodo/:todoName', checkToken,deleteTodoController);
 
 
 export { todoRoutes }
