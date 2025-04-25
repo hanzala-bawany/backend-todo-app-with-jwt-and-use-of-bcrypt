@@ -3,6 +3,7 @@ import dotenv from "dotenv"
 import { connectDB } from "./utills/mongoDBconnect.js"
 import { authRoutes } from "./routes/authRoutes.js";
 import { todoRoutes } from "./routes/todoRouts.js";
+import "./utills/cronJob.js"
 
 dotenv.config()
 const app = express();
